@@ -88,6 +88,16 @@ static cmd_rc_t cmd_led(cmd_t *cmd, int num_prm, reader_t *reader, writer_t *wri
     return CMD_RC_OK;
 }
 
+static cmd_rc_t cmd_adc(cmd_t *cmd, int num_prm, writer_t *writer) {
+    if (!cmd_check_num_prm(num_prm, 1, 1)) return CMD_RC_INVNUMPRM;
+    adc_select_input(0); // gpio26
+    // 12-bit conversion, assume max value == ADC_VREF == 3.3 V
+    uint16_t result = adc_read();
+
+    write_success(writer, "%f", result);
+    return CMD_RC_OK;
+}
+
 static cmd_rc_t cmd_temp(cmd_t *cmd, int num_prm, writer_t *writer) {
     if (!cmd_check_num_prm(num_prm, 1, 1)) return CMD_RC_INVNUMPRM;
     adc_select_input(4); // internal temperature sensor 
@@ -401,6 +411,7 @@ void cmd_dispatch(cmd_t *cmd, reader_t *reader, writer_t *writer) {
     case CMD_COMMAND_BOARD:          rc = cmd_board(cmd, num_prm, writer);                  break;
     case CMD_COMMAND_LED:            rc = cmd_led(cmd, num_prm, reader, writer);            break;
     case CMD_COMMAND_TEMP:           rc = cmd_temp(cmd, num_prm, writer);                   break;
+    case CMD_COMMAND_ADC:            rc = cmd_adc(cmd, num_prm, writer);                    break;
     case CMD_COMMAND_DCC_SYNC_BITS:  rc = cmd_dcc_sync_bits(cmd, num_prm, reader, writer);  break;
     case CMD_COMMAND_ENABLED:        rc = cmd_enabled(cmd, num_prm, reader, writer);        break;
     case CMD_COMMAND_RBUF:           rc = cmd_rbuf(cmd, num_prm, writer);                   break;
